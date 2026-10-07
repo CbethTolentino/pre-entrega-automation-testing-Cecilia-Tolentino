@@ -67,7 +67,9 @@ Para los botones de agregar y quitar se usa un selector por prefijo (`id^='add-t
 -Login con usuario vacio
 -Login con usuario invalido
 -Agregar productos al carrito
+-Eliminar producto seleccionado
 -Verificar producto al carrito
+-Eliminar producto del carrito
 
 ## Autora
 

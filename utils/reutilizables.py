@@ -39,7 +39,11 @@ BOTON_AGREGAR = (By.CSS_SELECTOR, "button[id^='add-to-cart']")
 BOTON_QUITAR = (By.CSS_SELECTOR, "button[id^='remove']")
 CONTADOR_CARRITO = (By.CLASS_NAME, "shopping_cart_badge")
 ICONO_CARRITO = (By.CLASS_NAME, "shopping_cart_link")
+ITEM_CARRITO = (By.CLASS_NAME, "cart_item")
 
+#VARIABLE QUE CONTIENE EL NOMBRE DE UN PRODUCTO
+PRODUCTO= "Sauce Labs Fleece Jacket"
+PRODUCTO2= "Sauce Labs Onesie"
 #Función de espera explicita a que el elemento localizado se vea y lo devuelve
 
 def espera_visible(driver, localizador):
@@ -67,4 +71,33 @@ def hacer_login(driver, usuario, password):
     assert espera_visible(driver, TITULO_SECCION).text == "Products"
  
 
+#Funcion que busca un producto por nombre, lo agrega al carrito y devuelve (nombre).
+def agregar_productos_por_nombre(driver,nombre_buscado):
+     #validación del titulo de la página
+                assert driver.title =="Swag Labs"
 
+                espera_visible(driver, PRODUCTOS)
+
+                productos = driver.find_elements(*PRODUCTOS)
+                #validación de existencia de productos
+                
+                assert len(productos) > 0 , "No hay productos en el catálogo"
+                
+                #validación de integridad de los productos
+                
+                for producto in productos:
+                       nombre = producto.find_element(*NOMBRE_PRODUCTO).text
+                       if nombre == nombre_buscado:
+                        producto.find_element(*BOTON_AGREGAR).click()
+                        return nombre
+                # Si el for termina sin hacer return, el producto no existe
+                raise AssertionError(f"No se encontró el producto '{nombre_buscado}'")
+    
+                  
+                 
+    
+                
+               
+    
+                
+    

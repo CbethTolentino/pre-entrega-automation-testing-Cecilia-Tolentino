@@ -1,8 +1,13 @@
-import pytest
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from utils.reutilizables import (
      PASSWORD_VALIDA,  USUARIO_VALIDO,PRODUCTOS,NOMBRE_PRODUCTO,PRECIO_PRODUCTO,BOTON_MENU,FILTRO_ORDEN,
+     agregar_productos_por_nombre,
+     espera_clic, PRODUCTO2,
+     CONTADOR_CARRITO,BOTON_QUITAR,TIMEOUT,
+
      hacer_login
     
 )
@@ -43,4 +48,22 @@ def test_productos():
             assert filtro.is_displayed()
     finally :
           driver.quit()
+
+def test_eliminar_producto_seleccionado():
+      driver=webdriver.Chrome()
+      try:
+           #Inicio preecondiciones
+           hacer_login(driver, USUARIO_VALIDO,PASSWORD_VALIDA)
+           agregar_productos_por_nombre(driver,PRODUCTO2)
+           #Finaliza preconduciones
+
+           #Acción para quitar el producto
+           espera_clic(driver,BOTON_QUITAR).click()
+            # Espera a que el contador desaparezca (máximo TIMEOUT segundos)
+           WebDriverWait(driver, TIMEOUT).until(EC.invisibility_of_element_located(CONTADOR_CARRITO))
+           #Validación del item carrito desaparezca
+           assert len(driver.find_elements(*CONTADOR_CARRITO)) == 0, "No debería mostrarse el contador"
+      finally:
+           driver.quit()      
+                  
        
