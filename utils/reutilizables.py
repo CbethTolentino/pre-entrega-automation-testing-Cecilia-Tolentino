@@ -1,14 +1,13 @@
-import pytest
-from selenium import webdriver
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import time
+
 #URL 
 
 URL = "https://www.saucedemo.com/"
 
-#VARIABLE DE TIEMPO TOTAL QUE SE USARA COMO ESPERA IMPLICITA
+#VARIABLE DE TIEMPO TOTAL QUE SE USARA COMO ESPERA EXPLICITAS
 
 TIMEOUT = 10
 
@@ -18,7 +17,7 @@ TIMEOUT = 10
 USUARIO =(By.ID,"user-name")
 PASSWORD =(By.ID,"password")
 BOTON_LOGIN =(By.ID,"login-button")
-
+MENSAJE_ERROR = (By.CSS_SELECTOR, "[data-test='error']")
 # CREDENCIALES
 
 USUARIO_VALIDO = "standard_user"
