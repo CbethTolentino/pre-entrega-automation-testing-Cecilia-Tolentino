@@ -1,69 +1,75 @@
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from utils.reutilizables import (
-     PASSWORD_VALIDA,  USUARIO_VALIDO,PRODUCTOS,NOMBRE_PRODUCTO,PRECIO_PRODUCTO,BOTON_MENU,FILTRO_ORDEN,
-     agregar_productos_por_nombre,
-     espera_clic, PRODUCTO2,
-     CONTADOR_CARRITO,BOTON_QUITAR,TIMEOUT,
 
-     hacer_login
+from pages.login_page import LoginPage
+from pages.productos_page import ProductosPage
+
+def test_productos(driver):
+   login_page = LoginPage(driver)
+   productos_page = ProductosPage(driver)
     
-)
-def test_productos():
-    driver=webdriver.Chrome()
-    try:
-            hacer_login(driver, USUARIO_VALIDO,PASSWORD_VALIDA)
 
+   login_page.abrir_pagina()
+   login_page.hacer_login(USUARIO_VALIDO,PASSWORD_VALIDA)
+      
+   productos = productos_page.obtener_productos()
             
-
-            #validación del titulo de la página
-            assert driver.title =="Swag Labs"
-
-            productos = driver.find_elements(*PRODUCTOS)
-            #validación de existencia de productos
+   #validación de existencia de productos
             
-            assert len(productos) > 0
+   assert len(productos) > 0
             
-            #validación de integridad de los productos
+   #validación de integridad de los productos
             
-            primer_producto = productos[0]
+   
+   assert productos_page.obtener_nombre_primer_producto == "Sauce Labs Backpack"
+   assert productos_page.obtener_precio_primer_producto == "$29.99"
 
-            nombre_producto = primer_producto.find_element(*NOMBRE_PRODUCTO).text
-            precio_producto = primer_producto.find_element(*PRECIO_PRODUCTO).text
+   #verificar menu
 
-            assert nombre_producto == "Sauce Labs Backpack"
-            assert precio_producto == "$29.99"
+           
+   assert productos_page.menu_visible() 
 
-            #verificar menu
+   #verificar filtro
 
-            menu = driver.find_element(*BOTON_MENU)
-            #verifica si el menu está visible en la web
-            assert menu.is_displayed()
-            #verificar filtro
+   assert productos_page.filtro_visible()
+   
 
-            filtro= driver.find_element(*FILTRO_ORDEN)
+def test_agregar_producto_seleccionado(driver):
+      login_page = LoginPage(driver)
+      productos_page = ProductosPage(driver)
+               
+           
+      login_page.abrir_pagina()
+      login_page.hacer_login(USUARIO_VALIDO,PASSWORD_VALIDA)
+     
+      productos = productos_page.obtener_productos()
+                       
+     #validación de existencia de productos
+                       
+      assert len(productos) > 0
+     
+      ProductosPage.agregar_productos_por_nombre(driver,"Sauce Labs Onesie")
+      productos_page.boton_agregar_producto()
+      contador = productos_page.contador_carrito_visible()
+      assert contador == 1, "Debe incrementarse el valor en 1"  
+def test_eliminar_producto_seleccionado(driver):
+      login_page = LoginPage(driver)
+      productos_page = ProductosPage(driver)
+          
+      
+      login_page.abrir_pagina()
+      login_page.hacer_login(USUARIO_VALIDO,PASSWORD_VALIDA)
 
-            assert filtro.is_displayed()
-    finally :
-          driver.quit()
-
-def test_eliminar_producto_seleccionado():
-      driver=webdriver.Chrome()
-      try:
-           #Inicio preecondiciones
-           hacer_login(driver, USUARIO_VALIDO,PASSWORD_VALIDA)
-           agregar_productos_por_nombre(driver,PRODUCTO2)
-           #Finaliza preconduciones
-
-           #Acción para quitar el producto
-           espera_clic(driver,BOTON_QUITAR).click()
-            # Espera a que el contador desaparezca (máximo TIMEOUT segundos)
-           WebDriverWait(driver, TIMEOUT).until(EC.invisibility_of_element_located(CONTADOR_CARRITO))
-           #Validación del item carrito desaparezca
-           assert len(driver.find_elements(*CONTADOR_CARRITO)) == 0, "No debería mostrarse el contador"
-      finally:
-           driver.quit()      
+      productos = productos_page.obtener_productos()
                   
-       
+         #validación de existencia de productos
+                  
+      assert len(productos) > 0
+
+      ProductosPage.agregar_productos_por_nombre(driver,"Sauce Labs Onesie")
+         
+      productos_page.boton_quitar_producto()
+      contador = productos_page.contador_carrito_visible()
+      assert contador == 0 , "No debería mostrarse el contador"  
+         
+         
+                  
+     

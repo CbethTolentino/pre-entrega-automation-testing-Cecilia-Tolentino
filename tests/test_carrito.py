@@ -3,15 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from utils.reutilizables import (
-     PASSWORD_VALIDA,  USUARIO_VALIDO,
-     hacer_login,BOTON_AGREGAR,
-      CONTADOR_CARRITO,  ICONO_CARRITO,
-    NOMBRE_PRODUCTO, agregar_productos_por_nombre,
-    PRODUCTOS, TIMEOUT,espera_clic, PRODUCTO,
-    espera_visible,BOTON_QUITAR,PRODUCTOS,
-    ITEM_CARRITO
-)
+
 def test_agregar_productos_carrito_exitoso():
     
     driver=webdriver.Chrome()

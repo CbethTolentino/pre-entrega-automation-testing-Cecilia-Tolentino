@@ -1,0 +1,7 @@
+usuario,password,tipo_usuario
+standard_user,secret_sauce,user_ok
+locked_out_user,secret_sauce,user_block
+locked_out_user,,password_empty
+,secret_sauce,user_empty
+locked_out_user,123alfbravo,password_wrong
+ rein_waldor,secret_sauce,user_wrong

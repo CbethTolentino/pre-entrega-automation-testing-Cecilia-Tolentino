@@ -1,174 +1,39 @@
+from pages.login_page import LoginPage
 import pytest
-from selenium import webdriver
-from selenium.webdriver.common.by import By
+from utils.lector_csv import read_users_csv
 
-from utils.reutilizables import (URL,
-     PASSWORD_VALIDA,  USUARIO_VALIDO,
-      USUARIO,PASSWORD,BOTON_LOGIN,LOGO,USUARIO_BLOQUEADO,
-     TIMEOUT,espera_clic, TITULO_SECCION,MENSAJE_ERROR,
-    espera_visible
-)
-def test_login_exitoso():
-    driver = webdriver.Chrome()
+@pytest.mark.parametrize("data",read_users_csv())
 
-    driver.implicitly_wait(TIMEOUT)
+def test_validacion_del_login(driver,data):
+    login_page = LoginPage(driver)
+
+    login_page.abrir_pagina()
     
-    try:
-        driver.get(URL)
-# definición de elementos
-        usuario =driver.find_element(*USUARIO)
-        password =driver.find_element(*PASSWORD)
-        boton_login =driver.find_element(*BOTON_LOGIN)
+    login_page.hacer_login(data["usuario"],data["password"])
 
-#acciones de dichos elementos
-        usuario.send_keys(*USUARIO_VALIDO)
-        password.send_keys(*PASSWORD_VALIDA)
-        espera_clic(driver,boton_login)
-        boton_login.click()
-
- #validaciones
-        assert "/inventory.html" in driver.current_url , "No se redirigió al inventario"
-
-   
-        assert   espera_visible(driver,LOGO).text  == "Swag Labs",  "Título inesperado"
-
-      
-        assert  espera_visible(driver,TITULO_SECCION).text == "Products" , "Se espera el titulo Products"
-
-    finally :
-
-       driver.quit()
-
-def test_login_usuario_bloqueado():
-
-    driver = webdriver.Chrome()
-
-    driver.implicitly_wait(TIMEOUT)
+    if data["tipo_usuario"] == "user_ok":
     
-    try:
-        driver.get(URL)
-# definición de elementos
-        usuario =driver.find_element(*USUARIO)
-        password =driver.find_element(*PASSWORD)
-        boton_login =driver.find_element(*BOTON_LOGIN)
-
-#acciones de dichos elementos
-        usuario.send_keys(*USUARIO_BLOQUEADO)
-        password.send_keys(*PASSWORD_VALIDA)
-        espera_clic(driver,boton_login)
-        boton_login.click()
-
- #validaciones
-        mensaje=espera_visible(driver,MENSAJE_ERROR).text
-        assert "locked out" in mensaje, "El usuario no se encuentra bloqueado"
-        assert "/inventory.html" not in driver.current_url
-    finally :
- 
-       driver.quit()
-
-
-def test_login_password_incorrecta(): 
-
-    driver = webdriver.Chrome()
-
-    driver.implicitly_wait(TIMEOUT)
-
-    try:
-        driver.get(URL)
-        # definición de elementos
-        usuario =driver.find_element(*USUARIO)
-        password =driver.find_element(*PASSWORD)
-        boton_login =driver.find_element(*BOTON_LOGIN)
-
-#acciones de dichos elementos
-        usuario.send_keys(*USUARIO_BLOQUEADO)
-        password.send_keys("alfabravo1212")
-        espera_clic(driver,boton_login)
-        boton_login.click()
-
-        mensaje=espera_visible(driver,MENSAJE_ERROR).text
-        assert "Epic sadface: Username and password do not match any user in this service" in mensaje, "Debe mostrar un mensaje de error por usuario o contraseña incorrecta" 
-        assert "/inventory.html" not in driver.current_url
-    finally :
-             
-        driver.quit()   
-
-def test_login_password_vacio(): 
-
-    driver = webdriver.Chrome()
-
-    driver.implicitly_wait(TIMEOUT)
-
-    try:
-        driver.get(URL)
-        # definición de elementos
-        usuario =driver.find_element(*USUARIO)
-        password =driver.find_element(*PASSWORD)
-        boton_login =driver.find_element(*BOTON_LOGIN)
-
-#acciones de dichos elementos
-        usuario.send_keys(*USUARIO_BLOQUEADO)
-        password.send_keys("")
-        espera_clic(driver,boton_login)
-        boton_login.click()
-
-        mensaje=espera_visible(driver,MENSAJE_ERROR).text
-        assert "Epic sadface: Password is required" in mensaje, "Debe requerir al usuario ingresar una contraseña" 
-        assert "/inventory.html" not in driver.current_url
-    finally :
-         
-        driver.quit()                                              
-
-def test_login_usuario_vacio(): 
-
-    driver = webdriver.Chrome()
-
-    driver.implicitly_wait(TIMEOUT)
-
-    try:
-        driver.get(URL)
-        # definición de elementos
-        usuario =driver.find_element(*USUARIO)
-        password =driver.find_element(*PASSWORD)
-        boton_login =driver.find_element(*BOTON_LOGIN)
-
-#acciones de dichos elementos
-        usuario.send_keys("")
-        password.send_keys(*PASSWORD_VALIDA)
-        espera_clic(driver,boton_login)
-        boton_login.click()
-
-        mensaje=espera_visible(driver,MENSAJE_ERROR).text
-        assert "Epic sadface: Username is required" in mensaje, "Debe requerir ingresar un usuario" 
-        assert "/inventory.html" not in driver.current_url
-    finally :
-         
-        driver.quit()                                              
+    #validaciones
+     assert "/inventory.html" in driver.current_url , "No se redirigió al inventario"
+     assert   login_page.logo_visible().text  == "Swag Labs",  "Título inesperado"
+     assert  login_page.titulo_visible().text == "Products" , "Se espera el titulo Products"
+    elif  data["tipo_usuario"] == "user_block":
+     mensaje= login_page.obtener_error()
+     assert "locked out" in mensaje, "El usuario no se encuentra bloqueado"
+     assert "/inventory.html" not in driver.current_url , "No debe aparecer el inventario"
+    elif  data["tipo_usuario"] == "user_empty":
+         mensaje= login_page.obtener_error()
+         assert "Epic sadface: Username is required" in mensaje, "Debe requerir ingresar un usuario"
+         assert "/inventory.html" not in driver.current_url , "No debe aparecer el inventario"
+    elif  data["tipo_usuario"] == "password_empty":
+         mensaje= login_page.obtener_error()
+         assert "Epic sadface: Password is required" in mensaje, "Debe requerir al usuario ingresar una contraseña" 
+         assert "/inventory.html" not in driver.current_url , "No debe aparecer el inventario"
+    elif data["tipo_usuario"] in ("user_wrong", "password_wrong"):
+        mensaje = login_page.obtener_error()
+        assert "Epic sadface: Username and password do not match any user in this service" in mensaje, \
+            "Debe mostrar un mensaje de error por usuario o contraseña incorrecta"
+        assert "/inventory.html" not in driver.current_url, "No debe aparecer el inventario"
+    else:
+        pytest.fail(f"tipo_usuario desconocido en el CSV: '{data["tipo_usuario"]}'")               
     
-def test_login_usuario_invalido(): 
-
-    driver = webdriver.Chrome()
-
-    driver.implicitly_wait(TIMEOUT)
-
-    try:
-        driver.get(URL)
-        # definición de elementos
-        usuario =driver.find_element(*USUARIO)
-        password =driver.find_element(*PASSWORD)
-        boton_login =driver.find_element(*BOTON_LOGIN)
-
-#acciones de dichos elementos
-        usuario.send_keys("ratelf_123")
-        password.send_keys(*PASSWORD_VALIDA)
-        espera_clic(driver,boton_login)
-        boton_login.click()
-
-        mensaje=espera_visible(driver,MENSAJE_ERROR).text
-        assert "Epic sadface: Username and password do not match any user in this service" in mensaje, "Debe mostrar un mensaje de error por usuario o contraseña incorrecta" 
-        assert "/inventory.html" not in driver.current_url
-    finally :
-         
-        driver.quit()                                              
-    
-                
