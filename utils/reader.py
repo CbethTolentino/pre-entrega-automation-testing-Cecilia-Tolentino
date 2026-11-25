@@ -18,3 +18,8 @@ def read_users_by_type(tipo):
 def read_productos_json():
     with open("data/productos.json") as file:
         return json.load(file)
+
+
+def read_usuarios_api_json():
+    with open("data/users_api.json") as file:
+        return json.load(file)    
