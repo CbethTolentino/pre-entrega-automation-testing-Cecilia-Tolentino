@@ -1,6 +1,6 @@
 from pages.login_page import LoginPage
 import pytest
-from utils.lector_csv import read_users_csv
+from utils.reader import read_users_csv
 
 @pytest.mark.parametrize("data",read_users_csv())
 

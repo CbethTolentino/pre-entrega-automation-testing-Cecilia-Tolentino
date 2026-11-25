@@ -1,83 +1,83 @@
 import pytest
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 
-def test_agregar_productos_carrito_exitoso():
+from pages.login_page import LoginPage
+from pages.carrito_page import CarritoPage
+from pages.productos_page import ProductosPage
+from utils.reader import read_productos_json,read_users_csv,read_users_by_type
+
+
+
+@pytest.mark.parametrize("data",read_users_by_type("user_ok"))
+def test_agregar_productos_carrito_exitoso(driver,data):
     
-    driver=webdriver.Chrome()
-
-    try:
-           hacer_login(driver, USUARIO_VALIDO,PASSWORD_VALIDA)
-           
-           
-
-           espera_visible(driver, PRODUCTOS)
-           productos = driver.find_elements(*PRODUCTOS)
-           primer_producto = productos[0]
-
-           nombre_producto = primer_producto.find_element(*NOMBRE_PRODUCTO).text
-          
-
-           #Añadir un producto al carrito haciendo clic en el botón correspondiente con espera explicita incluida
-         
-           espera_clic(driver,BOTON_AGREGAR).click()   
-
-          #Verificar que el contador del carrito se incremente correctamente
-           assert espera_visible(driver, CONTADOR_CARRITO).text == "1"
-
-          #Navegar al carrito de compras
-           espera_clic(driver, ICONO_CARRITO).click()
-           WebDriverWait(driver, TIMEOUT).until(EC.url_contains("/cart.html"))
-          #Comprobar que el producto añadido aparezca correctamente en el carrito
-           productos_en_carrito = driver.find_elements(*NOMBRE_PRODUCTO)
-
-          
-
-           assert len(productos_en_carrito) == 1 , f"El contador del carrito es {productos_en_carrito} (se esperaba 1)"
-
-           assert productos_en_carrito[0].text == nombre_producto, "El producto no coincide"
-
-         
-    finally :
-          driver.quit()
-
-def test_eliminar_productos_carrito_exitoso():
+    login_page = LoginPage(driver)
+    productos_page =  ProductosPage(driver)
+    carrito_page = CarritoPage(driver)
     
-    driver=webdriver.Chrome()
+    login_page.abrir_pagina()
+        
+    login_page.hacer_login(data["usuario"],data["password"])
+   
+    #lee el primer producto del JSON 
+    producto= read_productos_json()[0] 
+    
+    #Agregar producto del JSON 
+    productos_page.agregar_productos_por_nombre(producto["nombre"])
+    
+    assert productos_page.contador_carrito_visible() == "1"
 
-    try:
-           #Inicio precondición
-           hacer_login(driver, USUARIO_VALIDO,PASSWORD_VALIDA)
-           
-           
+      #Navegar al carrito de compras
+    productos_page.ir_al_carrito()
+    
+      #Comprobar que el producto añadido aparezca correctamente en el carrito
+    assert carrito_page.obtener_nombre_producto_carrito() == producto["nombre"], "El nombre del producto no coincide"
 
-           agregar_productos_por_nombre(driver,PRODUCTO)
-
-          #Verificar que el contador del carrito se incremente correctamente
-           assert espera_visible(driver, CONTADOR_CARRITO).text == "1"
-
-          #Navegar al carrito de compras
-           espera_clic(driver, ICONO_CARRITO).click()
-           WebDriverWait(driver, TIMEOUT).until(EC.url_contains("/cart.html"))
-          #Comprobar que el producto añadido aparezca correctamente en el carrito
-           productos_en_carrito = driver.find_elements(*NOMBRE_PRODUCTO)
+    assert carrito_page.obtener_precio_producto_carrito() == producto["precio"], "El precio del producto no coincide"
+    
+    productos_en_carrito = carrito_page.obtener_items_carrito()
+    assert len(productos_en_carrito) == 1 , f"El contador del carrito es {len(productos_en_carrito)} (se esperaba 1)"
+    
+    
 
           
+    
+@pytest.mark.parametrize("data",read_users_by_type("user_ok"))
+def test_eliminar_productos_carrito_exitoso(driver,data):
+    
+    login_page = LoginPage(driver)
+    productos_page =  ProductosPage(driver)
+    carrito_page = CarritoPage(driver)
+        
+    login_page.abrir_pagina()
+            
+    login_page.hacer_login(data["usuario"],data["password"])
+       
+        #lee el segundo producto del JSON 
+    producto= read_productos_json()[1] 
+    print(producto)
+        #Agregar producto del JSON 
+    productos_page.agregar_productos_por_nombre(producto["nombre"])
+        
+    assert productos_page.contador_carrito_visible() == "1"
+    
+      #Navegar al carrito de compras
+    productos_page.ir_al_carrito()
+        
+    #Comprobar que el producto añadido aparezca correctamente en el carrito
+    assert carrito_page.obtener_nombre_producto_carrito() == producto["nombre"], "El nombre del producto no coincide"
+    
+    assert carrito_page.obtener_precio_producto_carrito() == producto["precio"], "El precio del producto no coincide"
+        
+    productos_en_carrito = carrito_page.obtener_items_carrito()
 
-           assert len(productos_en_carrito) == 1 , f"El contador del carrito es {productos_en_carrito} (se esperaba 1)"
-
-           assert productos_en_carrito[0].text == PRODUCTO, "El producto no coincide"
-          #Finaliza precondición
-           espera_clic(driver,BOTON_QUITAR).click()
+    assert len(productos_en_carrito) == 1 , f"El contador del carrito es {len(productos_en_carrito)} (se esperaba 1)"
+    #Finaliza precondición
+    carrito_page.quitar_item_carrito()
            
-         # Esperar a que el producto desaparezca del carrito
-           WebDriverWait(driver, TIMEOUT).until(EC.invisibility_of_element_located(ITEM_CARRITO))
+   
 
-         # Verificar que no queda ningún producto ni contador
-           assert len(driver.find_elements(*ITEM_CARRITO)) == 0, "El carrito debería estar vacío"
-           assert len(driver.find_elements(*CONTADOR_CARRITO)) == 0, "No debería mostrarse el contador"
+    # Verificar que no queda ningún producto ni contador
+    assert len(carrito_page.obtener_items_carrito()) == 0, "El carrito debería estar vacío"
+    assert len(carrito_page.obtener_contador_carrito()) == 0, "No debería mostrarse el contador"
 
-    finally :
-          driver.quit()       
+  

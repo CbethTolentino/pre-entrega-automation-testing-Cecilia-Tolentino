@@ -10,12 +10,12 @@ from pages.login_page import LoginPage
 
 @pytest.fixture
 def driver():
-    options = Options()
+    options = webdriver.ChromeOptions()
     options.add_argument("--incognito")
     options.add_argument("--no-sandbox")    # paraa github
     options.add_argument("--disble-gpu")   # para
     options.add_argument("--windwow-size-1920,1080")    # para tamaño ventana
-    options.add_argument("--headless=new")    # para github
+   # options.add_argument("--headless=new")     para github
     driver = webdriver.Chrome(options=options)
     driver.implicitly_wait(10)
     yield driver

@@ -6,7 +6,7 @@ logs_dir = pathlib.Path("logs")
 logs_dir.mkdir(exist_ok = True)
 
 timestamp = datetime.now("%d%m%Y_%H%M%S")
-
+"""
 logging.basicConfig(
     filename = logs_dir / f"log_{timestamp}.log",
     level=logging.INFO,
@@ -14,3 +14,4 @@ logging.basicConfig(
     force = True
 )
 
+"""

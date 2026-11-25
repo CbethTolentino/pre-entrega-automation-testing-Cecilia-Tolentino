@@ -1,6 +1,6 @@
 import csv
 import json
-import pathlib
+
 
 
 def read_users_csv():
@@ -10,7 +10,11 @@ def read_users_csv():
 
         return list(lector)
 
+# filtra por tipo de usuario
+def read_users_by_type(tipo):
+    return [u for u in read_users_csv() if u["tipo_usuario"] == tipo]
+
 
 def read_productos_json():
-    with open("data/products.json") as file:
+    with open("data/productos.json") as file:
         return json.load(file)
