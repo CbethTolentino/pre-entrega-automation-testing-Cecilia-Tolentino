@@ -3,7 +3,7 @@ import pytest
 from pages.login_page import LoginPage
 from pages.carrito_page import CarritoPage
 from pages.productos_page import ProductosPage
-from utils.reader import read_productos_json,read_users_csv,read_users_by_type
+from utils.reader import read_productos_json,read_users_by_type
 from utils.logger import logger
 
 
@@ -43,6 +43,7 @@ def test_agregar_productos_carrito_exitoso(driver,data):
       logger.info("Prueba del contador del carrito validada")
    except Exception:
       logger.exception("Error durante la prueba de agregar de productos en el carrito")
+      raise
     
 
           
@@ -99,3 +100,4 @@ def test_eliminar_productos_carrito_exitoso(driver,data):
       logger.info("Prueba de que ya no existe el contador validada")
    except Exception:   
       logger.exception("Error durante la prueba de eliminación de productos en el carrito")
+      raise

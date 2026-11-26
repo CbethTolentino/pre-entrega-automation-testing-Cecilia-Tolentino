@@ -11,7 +11,7 @@ class CarritoPage:
     ITEM_CARRITO = (By.CLASS_NAME, "cart_item")
     NOMBRE_PRODUCTO = (By.CSS_SELECTOR, ".cart_item .inventory_item_name")
     PRECIO_PRODUCTO = (By.CSS_SELECTOR, ".cart_item .inventory_item_price")
-    
+    BOTON_CHECKOUT= (By.ID,"checkout")
     def __init__(self, driver):
         self.driver = driver
         self.wait = WebDriverWait(driver, 10)
@@ -35,3 +35,8 @@ class CarritoPage:
 
     def obtener_contador_carrito(self):
              return self.driver.find_elements(*self.CONTADOR_CARRITO)
+
+    def ir_a_checkout(self):
+        self.wait.until(EC.element_to_be_clickable(self.BOTON_CHECKOUT)).click()
+        self.wait.until(EC.url_contains("checkout-step-one"))
+        return self

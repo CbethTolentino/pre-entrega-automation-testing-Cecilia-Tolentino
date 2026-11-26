@@ -23,3 +23,7 @@ def read_productos_json():
 def read_usuarios_api_json():
     with open("data/users_api.json") as file:
         return json.load(file)    
+
+def read_checkout_json():
+    with open("data/checkout.json", encoding="utf-8") as file:
+        return json.load(file)    
