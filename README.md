@@ -1,29 +1,55 @@
-# Pre-entrega Automation Testing – saucedemo.com
+# Proyecto Final - Automation Testing
 
 ## Propósito
-Automatizar con Selenium WebDriver y Pytest los flujos básicos de
-[saucedemo.com](https://www.saucedemo.com): login, verificación del catálogo
-y carrito de compras para el curso "Automation Testing" del Gobierno de la Ciudad de Buenos Aires
+
+Framework de automatización de pruebas en Python para el curso "Automation Testing"
+(Gobierno de la Ciudad de Buenos Aires). Incluye pruebas de UI sobre
+[saucedemo.com](https://www.saucedemo.com) y pruebas de API sobre [ReqRes](https://reqres.in).
 
 ## Tecnologias Utilizadas
 
--Python
--Selenium
--Pytest
--Git
--Github
+- Python 3.13
+- Pytest y pytest-html (ejecución y reportes)
+- Selenium WebDriver (UI) con Page Object Model
+- Requests (API)
+- python-dotenv (variables de entorno)
+- Git, GitHub y GitHub Actions
 
+## Estructura del proyecto
+
+```
+.github/workflows/test.yml   # pipeline de CI
+data/                        # datos de prueba (users.csv, productos.json, users_api.json)
+pages/                       # Page Objects: login, productos y carrito
+tests/                       # test_login, test_productos, test_carrito, test_api, test_checkout
+utils/                       # reader (CSV/JSON) y logger
+conftest.py                  # fixtures y screenshots en fallos
+pytest.ini                   # configuración de pytest y reporte HTML
+requirements.txt
+```
 ## Instalación
+```powershell
+git clone https://github.com/<usuario>/proyecto-final-automation-testing-cecilia-tolentino.git
+cd proyecto-final-automation-testing-cecilia-tolentino
+pip install -r requirements.txt
+```
 
-Para instalar las dependencias:
-```python
-pip install pytest
+Creá un archivo `.env` en la raíz (copiá `.env.example`) con tu API key de ReqRes:
+
 ```
-```python
-pip install pytest-html
+REQRES_API_KEY=tu_api_key
 ```
-```python
-pip install selenium
+
+## Ejecución
+
+```powershell
+pytest                          # todas las pruebas
+pytest tests/test_api.py        # solo API
+pytest tests/test_login.py      # solo login
+pytest tests/test_carrito.py    # solo carrito
+pytest tests/test_checkout.py   # solo checkout
+pytest tests/test_productos.py  # solo productos
+
 ```
 
 ## Ejecución de pruebas
@@ -33,43 +59,50 @@ pytest
 ```
 ## Carpeta `utils/`
 
-Contiene `reutilizables.py`, el archivo con todo lo que se repite en más de un test. Así los tests quedan cortos y, si la página cambia, se corrige en un solo lugar.
+Contiene las utilidades que comparten todos los tests.
 
-### Qué incluye
+### `logger.py`
 
-**Configuración**
-- `URL`: dirección de la página de saucedemo.
-- `TIMEOUT`: segundos máximos que Selenium espera por un elemento (10).
+Configura el sistema de logging del proyecto. Al ejecutar las pruebas crea la carpeta `logs/` (si no existe) y genera un archivo nuevo por ejecución, con la fecha y hora en el nombre (`log_<ddmmaaaa_hhmmss>.log`). Cada línea registra la hora, el nivel (`INFO`, `ERROR`), el nombre del logger y el mensaje. Los tests importan `logger` y lo usan para dejar registrados los pasos clave, y el hook de `conftest.py` registra los tests fallidos junto con su traceback.
 
-**Credenciales**
-- `USUARIO_VALIDO`, `USUARIO_BLOQUEADO` y `PASSWORD_VALIDA`: los datos de login usados en las pruebas.
+### `reader.py`
 
-**Localizadores**
-Cada elemento de la página se guarda como una tupla `(By.X, "valor")`, agrupada por sección:
-- Login: campos de usuario y password, botón de login y mensaje de error.
-- Inventario: logo, título, productos, nombre, precio, menú y filtro de orden.
-- Carrito: botones de agregar y quitar, contador e ícono del carrito.
+Lee los datos de prueba desde la carpeta `data/`, para que los tests no tengan datos escritos en el código:
 
-Para los botones de agregar y quitar se usa un selector por prefijo (`id^='add-to-cart'`), porque el id cambia según el producto.
+- `read_users_csv()`: devuelve todos los usuarios de `users.csv` como lista de diccionarios.
+- `read_users_by_type(tipo)`: devuelve solo los usuarios de un tipo (por ejemplo `user_ok` o `user_block`).
+- `read_productos_json()`: devuelve la lista de productos de `productos.json`.
+- `read_usuarios_api_json()`: devuelve los usuarios de `users_api.json`, usados en los tests de API.
+- `read_checkout_json()`: devuelve los datos del comprador de `checkout.json`.
 
-**Funciones**
-- `espera_visible(driver, localizador)`: espera explícita hasta que el elemento sea visible y lo devuelve.
-- `espera_clic(driver, localizador)`: espera explícita hasta que el elemento se pueda clickear y lo devuelve.
-- `hacer_login(driver, usuario, password)`: abre la página, completa el formulario, hace clic en Login y verifica que se llegó al inventario.
-
+## Manejo de datos de prueba
+- En la carpeta `data` se incluyen archivos como:
+- `users.csv` -> datos de usuarios validos o invalidos
+- `productos.json`-> datos de productos para validación
+- `checkout.json` -> datos de usuarios para el checkout
+- `users_api.json`-> datos de usuario para las pruebas de api
 
 ## Casos de prueba
 
--Login exitoso
--Login con usuario bloqueado
--Login con password incorrecta
--Login con password vacio
--Login con usuario vacio
--Login con usuario invalido
--Agregar productos al carrito
--Eliminar producto seleccionado
--Verificar producto al carrito
--Eliminar producto del carrito
+**UI (saucedemo)**
+- Login exitoso, usuario bloqueado, usuario vacío, contraseña vacía, contraseña incorrecta y usuario inexistente (parametrizado desde `users.csv`)
+- Verificación del inventario (productos, menú y filtro)
+- Agregar y eliminar producto desde el inventario
+- Agregar producto y verificarlo en el carrito
+- Eliminar producto desde el carrito
+
+**API (ReqRes)**
+- GET de un usuario, GET de un usuario inexistente (404), POST de un usuario y DELETE de un usuario
+
+## Reportes, logs y capturas
+
+- **Reporte HTML:** `reportes/reporte.html`. Muestra cada test con su estado (Passed/Failed), su duración y, en los fallidos, el traceback y la captura de pantalla. Abrilo en el navegador.
+- **Capturas:** `reports/screenshots/<fecha>_<test>.png`, una por cada test de UI que falla.
+- **Logs:** `logs/log_<fecha>.log`, con los pasos de cada prueba para depurar.
+
+## Integración continua
+
+El workflow de GitHub Actions corre las pruebas en cada push a `main` y guarda el reporte como artefacto. La API key se configura como secret `REQRES_API_KEY` del repositorio.
 
 ## Autora
 

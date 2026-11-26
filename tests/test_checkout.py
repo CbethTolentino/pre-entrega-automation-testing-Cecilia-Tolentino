@@ -27,11 +27,17 @@ def test_checkout_exitoso(driver, data):
     carrito_page.ir_a_checkout()
 
     logger.info("Completando los datos del comprador")
-    checkout_page.completar_datos(cliente["nombre"], cliente["apellido"], cliente["codigo_postal"])
+    checkout_page.completar_datos(
+        cliente["nombre"], cliente["apellido"], cliente["codigo_postal"]
+    )
     checkout_page.continuar()
 
-    assert checkout_page.obtener_nombre_producto_resumen() == producto["nombre"], "El producto del resumen no coincide"
-    assert f"${producto['precio']}" in checkout_page.obtener_subtotal(), "El subtotal no coincide"
+    assert (
+        checkout_page.obtener_nombre_producto_resumen() == producto["nombre"]
+    ), "El producto del resumen no coincide"
+    assert (
+        f"${producto['precio']}" in checkout_page.obtener_subtotal()
+    ), "El subtotal no coincide"
     logger.info("Resumen de la compra validado")
 
     checkout_page.finalizar_compra()
