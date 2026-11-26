@@ -88,3 +88,10 @@ def test_delete_user(base_url,header_request):
     logger.info("Prueba de que no exista contenido validada")
     assert response.elapsed.total_seconds() < 10 , "debe responder antes de los 10 seg"
     logger.info("Prueba del tiempo de respuesta validada")
+
+def test_obtener_usuario_inexistente(base_url, header_request):
+    logger.info("Solicitando un usuario que no existe")
+    response = requests.get(f"{base_url}/users/23", headers=header_request, timeout=30)
+
+    assert response.status_code == 404
+    logger.info("Prueba de status 404 validada")    

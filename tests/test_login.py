@@ -46,5 +46,6 @@ def test_validacion_del_login(driver,data):
         pytest.fail(f"tipo_usuario desconocido en el CSV: '{data["tipo_usuario"]}'")
         
  except Exception:
-           logger.exception("Error durante la prueba de login")                      
+           logger.exception("Error durante la prueba de login")
+           raise                      
     
