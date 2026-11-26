@@ -3,11 +3,11 @@ name: Test automatizados
 on:
   push:
     branches: 
-      -main
+      - main
 
 jobs:
   run-tests:
-    run-on : ubuntu-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Descargar repositorio
