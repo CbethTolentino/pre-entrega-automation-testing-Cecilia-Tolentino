@@ -25,7 +25,7 @@ class CheckoutPage:
         campo.send_keys(texto)
 
     def completar_datos(self, nombre, apellido, codigo_postal):
-        
+
         self._escribir(self.NOMBRE, nombre)
         self._escribir(self.APELLIDO, apellido)
         self._escribir(self.CODIGO_POSTAL, codigo_postal)
@@ -36,10 +36,14 @@ class CheckoutPage:
         return self
 
     def obtener_error(self):
-        return self.wait.until(EC.visibility_of_element_located(self.MENSAJE_ERROR)).text
+        return self.wait.until(
+            EC.visibility_of_element_located(self.MENSAJE_ERROR)
+        ).text
 
     def obtener_nombre_producto_resumen(self):
-        return self.wait.until(EC.visibility_of_element_located(self.NOMBRE_PRODUCTO_RESUMEN)).text
+        return self.wait.until(
+            EC.visibility_of_element_located(self.NOMBRE_PRODUCTO_RESUMEN)
+        ).text
 
     def obtener_subtotal(self):
         return self.wait.until(EC.visibility_of_element_located(self.SUBTOTAL)).text
@@ -49,4 +53,6 @@ class CheckoutPage:
         return self
 
     def obtener_mensaje_confirmacion(self):
-        return self.wait.until(EC.visibility_of_element_located(self.MENSAJE_CONFIRMACION)).text
+        return self.wait.until(
+            EC.visibility_of_element_located(self.MENSAJE_CONFIRMACION)
+        ).text
